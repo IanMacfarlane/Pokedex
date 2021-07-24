@@ -3,6 +3,7 @@
 // downloads data from pokemondb.net into a json file
 
 let request = require('request');
+let fs = require('fs');
 
 let pokemonData = {};
 let url = 'https://pokemondb.net/pokedex/';
@@ -29,9 +30,10 @@ function getPokemonData(pokemon) {
 			index = body.search(keyword);
 			body = body.slice(index + keyword.length);
 			index = body.search('<');
-			pokemonData.pokemon.bulbasaur['number'] = {};
-			pokemonData.pokemon.bulbasaur.number.national = body.slice(0, index);
+			pokemonData.pokemon[pokemon]['number'] = {};
+			pokemonData.pokemon[pokemon].number.national = body.slice(0, index);
 
+			// TODO regional pokemon alternatives
 			// get types
 			index = body.search('Type');
 			body = body.slice(index);
@@ -83,27 +85,108 @@ function getPokemonData(pokemon) {
 			localBody = body.slice(0, body.search('</td>'));
 			let number;
 			let pokedex;
-			let regex = /\d/;
 			keyword = 'text-muted\">';
-			while (localBody.search(regex) != -1) {
-				number = localBody.slice(localBody.search(regex), localBody.search(' <small'));
+			while (localBody.search(/\d/) != -1) {
+				number = localBody.slice(localBody.search(/\d/), localBody.search(' <small'));
 				localBody = localBody.slice(localBody.search(keyword) + keyword.length);
 				pokedex = localBody.slice(0, localBody.search('</small'));
 				pokemonData.pokemon[pokemon].number[pokedex] = number;
+				localBody = localBody.slice(localBody.search('</small'));
 				// TODO may want to format pokedex name
 			}
 
-			// TODO get stats
+			// TODO get training data
 
-			// TODO get evolutions
+			// get stats
+			body = body.slice(body.search('<th>HP</th>'));
+			pokemonData.pokemon[pokemon]['stats'] = {};
+			keyword = 'cell-num\">';
+
+			pokemonData.pokemon[pokemon].stats['hp'] = {};
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.hp.base = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.hp.min = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.hp.max = body.slice(0, body.search('</td>'));
+
+			pokemonData.pokemon[pokemon].stats['attack'] = {};
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.attack.base = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.attack.min = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.attack.max = body.slice(0, body.search('</td>'));
+
+			pokemonData.pokemon[pokemon].stats['defense'] = {};
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.defense.base = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.defense.min = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.defense.max = body.slice(0, body.search('</td>'));
+
+			pokemonData.pokemon[pokemon].stats['spAtk'] = {};
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.spAtk.base = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.spAtk.min = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.spAtk.max = body.slice(0, body.search('</td>'));
+
+			pokemonData.pokemon[pokemon].stats['spDef'] = {};
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.spDef.base = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.spDef.min = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.spDef.max = body.slice(0, body.search('</td>'));
+
+			pokemonData.pokemon[pokemon].stats['speed'] = {};
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.speed.base = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.speed.min = body.slice(0, body.search('</td>'));
+			body = body.slice(body.search(keyword) + keyword.length);
+			pokemonData.pokemon[pokemon].stats.speed.max = body.slice(0, body.search('</td>'));
+
+			keyword = '<b>';
+			pokemonData.pokemon[pokemon].stats.total = body.slice(body.search(keyword) + keyword.length, body.search('</b>'));
+			
+			// get evolutions 
+			// TODO branched evolutions
+			// TODO regional evolutions
+			body = body.slice(body.search('Evolution chart'));
+			localBody = body.slice(0, body.search(' changes'));
+			pokemonData.pokemon[pokemon].evolutions = [];
+			keyword = 'name\" href=\"/pokedex/';
+			let extraKeyword = '\\(';
+			let evolutionText;
+			while (localBody.search(keyword) != -1) {
+				localBody = localBody.slice(localBody.search(keyword) + keyword.length);
+				pokemonData.pokemon[pokemon].evolutions.push(localBody.slice(0, localBody.search('\"')));
+				if (localBody.search(extraKeyword) != -1) {
+					evolutionText = localBody.slice(localBody.search(extraKeyword) + extraKeyword.length-1, localBody.search('\\)</small>'));
+					if (evolutionText.includes('href')) {
+						evolutionText = evolutionText.slice(evolutionText.search('>') + 1, evolutionText.search('</a>'));
+					}
+					pokemonData.pokemon[pokemon].evolutions.push(evolutionText);
+				}
+			}
 
 			// TODO get pokedex descriptions
 
 			// TODO get moves
 
-			// TODO get locations
+			// TODO get locations use bulbapedia
 
-			console.log(pokemonData.pokemon.bulbasaur);
+			console.log(pokemonData.pokemon[pokemon]);
+			if (pokemon = 'mew') {
+				let string = JSON.stringify(pokemonData.pokemon, null, 4);
+				fs.writeFile('pokemon.json', string, function(err) {
+					if (err) return console.log(err);
+				});
+			}
 		}
 	);
 }
@@ -151,12 +234,16 @@ function getPokemon(game) {
 				}
 			}
 
+			let count = 0;
 			if (!game) {
 				// get individual pokemon data
 				/*for (pokemon in pokemonData.pokemon) {
-					getPokemonData(pokemon);
+					count++;
+					if (count < 152) {
+						getPokemonData(pokemon);
+					}
 				}*/
-				getPokemonData('bulbasaur');
+				getPokemonData('growlithe');
 			}
 		}
 	);
