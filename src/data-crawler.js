@@ -7,17 +7,44 @@ let request = require('request');
 let pokemonData = {};
 let url = 'https://pokemondb.net/pokedex/';
 getGames(url);
+// TODO get location data
+// TODO get move data
+// TODO get ability data
+
+// TODO download pokemon images
+
+
+function getPokemonData(pokemon) {
+	//console.log(pokemon);
+}
+
+function getLocationData() {
+}
 
 
 function getPokemon(game) {
+
+	let urlAddition;
+	if (game) {
+		urlAddition = 'game/' + game + '/';
+	}
+	else {
+		urlAddition = 'national/';
+	}
+
 	request(
-		{ uri: url + 'game/' + game + '/' },
+		{ uri: url + urlAddition },
 		function(error, response, body) {
 			keyword = 'infocard-list';
 			index = body.search(keyword);
 			body = body.slice(index);
 
-			pokemonData.games[game].pokemon = [];
+			if (game) {
+				pokemonData.games[game].pokemon = [];
+			}
+			else {
+				pokemonData.pokemon = [];
+			}
 
 			keyword = 'name" href=\"/pokedex/';
 			while (body.search(keyword) != -1) {
@@ -25,13 +52,21 @@ function getPokemon(game) {
 				body = body.slice(index + keyword.length);
 				index = body.search('\"');
 				let pokemon = body.slice(0, index);
-				//console.log(pokemon);
-				pokemonData.games[game].pokemon.push(pokemon);
+				if (game) {
+					pokemonData.games[game].pokemon.push(pokemon);
+				}
+				else {
+					pokemonData.pokemon.push(pokemon);
+				}
 			}
 
-			console.log(pokemonData);
-			console.log(pokemonData.games[game].pokemon);
-			
+			if (!game) {
+				console.log(pokemonData);
+				// TODO get individual pokemon data
+				for (let i = 0; i < pokemonData.pokemon.length; i++) {
+					getPokemonData(pokemonData.pokemon[i]);
+				}
+			}
 		}
 	);
 }
@@ -42,12 +77,11 @@ function getGames(url) {
 		{ uri: url },
 		function(error, response, body) {
 
-			// get all pokemon games
-
-			let keyword = '<strong>National Dex</strong>';
+			let keyword = 'national dex';
 			let index = body.search(keyword);
 			body = body.slice(index);
 
+			// get all pokemon games
 			pokemonData.games = {};
 			
 			keyword = '/pokedex/game/';
@@ -59,10 +93,12 @@ function getGames(url) {
 				pokemonData.games[game]= {};
 			}
 
-			/*for (game in pokemonData.games) {
+			for (game in pokemonData.games) {
 				getPokemon(game);
-			}*/
-			getPokemon('firered-leafgreen');
+			}
+
+			// get national dex
+			getPokemon();
 		}
 	);
 }
