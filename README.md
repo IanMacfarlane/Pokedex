@@ -1,5 +1,1 @@
-pokemon companion mobile application
-
-TODO pokemon data webcrawler
-
-TODO android application
+This is a webcrawler script that searches through pokemon wikis for all of the data required to write a pokedex application.
