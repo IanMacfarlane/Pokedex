@@ -12,6 +12,7 @@ getGames(url);
 // TODO get location data
 // TODO get move data
 // TODO get ability data
+// TODO get item data and locations
 
 // TODO download pokemon images
 
@@ -58,6 +59,7 @@ function getPokemonData(pokemon) {
 			// TODO get weight
 
 			// get abilites
+			// TODO get ability data
 			body = body.slice(body.search('Abilities'));
 			localBody = body.slice(0, body.search('</tr>'));
 			pokemonData.pokemon[pokemon].abilities = [];
@@ -96,6 +98,8 @@ function getPokemonData(pokemon) {
 			}
 
 			// TODO get training data
+
+			// TODO get breeding data
 
 			// get stats
 			body = body.slice(body.search('<th>HP</th>'));
@@ -155,9 +159,10 @@ function getPokemonData(pokemon) {
 			
 			// get evolutions 
 			// TODO branched evolutions
+			// TODO may need to manually edit evolution text
 			// TODO regional evolutions
 			body = body.slice(body.search('Evolution chart'));
-			localBody = body.slice(0, body.search(' changes'));
+			localBody = body.slice(0, body.search('</div>\n</div>'));
 			pokemonData.pokemon[pokemon].evolutions = [];
 			keyword = 'name\" href=\"/pokedex/';
 			let extraKeyword = '\\(';
@@ -167,22 +172,43 @@ function getPokemonData(pokemon) {
 				pokemonData.pokemon[pokemon].evolutions.push(localBody.slice(0, localBody.search('\"')));
 				if (localBody.search(extraKeyword) != -1) {
 					evolutionText = localBody.slice(localBody.search(extraKeyword) + extraKeyword.length-1, localBody.search('\\)</small>'));
-					if (evolutionText.includes('href')) {
+					/*if (evolutionText.includes('href')) {
 						evolutionText = evolutionText.slice(evolutionText.search('>') + 1, evolutionText.search('</a>'));
-					}
+					}*/
 					pokemonData.pokemon[pokemon].evolutions.push(evolutionText);
 				}
 			}
 
-			// TODO get pokedex descriptions
+			// get pokedex descriptions
+			body = body.slice(body.search('dex entries'));
+			pokemonData.pokemon[pokemon]['descriptions'] = {};
+			localBody = body.slice(0, body.search('</table>'));
+			let game;
+			while(localBody.search('<tr>') != -1) {
+				tempBody = localBody.slice(localBody.search('<tr>'), localBody.search('</tr>'));
+				game = '';
+				keyword = 'igame ';
+				while (tempBody.search(keyword) != -1) {
+					if (game != '') {
+						game += '-';
+					}
+					tempBody = tempBody.slice(tempBody.search(keyword) + keyword.length);
+					game += tempBody.slice(0, tempBody.search('\"'));
+				}
+				keyword = 'cell-med-text\">';
+				tempBody = tempBody.slice(tempBody.search(keyword) + keyword.length);
+				pokemonData.pokemon[pokemon].descriptions[game] = tempBody.slice(0, tempBody.search('</td>'));
+				localBody = localBody.slice(localBody.search('</tr>') + '</tr>'.length);
+			}
 
 			// TODO get moves
 
 			// TODO get locations use bulbapedia
 
+			console.log(pokemon);
 			console.log(pokemonData.pokemon[pokemon]);
-			if (pokemon = 'mew') {
-				let string = JSON.stringify(pokemonData.pokemon, null, 4);
+			if (pokemon = 'calyrex') {
+				let string = JSON.stringify(pokemonData, null, 4);
 				fs.writeFile('pokemon.json', string, function(err) {
 					if (err) return console.log(err);
 				});
@@ -237,13 +263,13 @@ function getPokemon(game) {
 			let count = 0;
 			if (!game) {
 				// get individual pokemon data
-				/*for (pokemon in pokemonData.pokemon) {
-					count++;
-					if (count < 152) {
-						getPokemonData(pokemon);
-					}
-				}*/
-				getPokemonData('growlithe');
+				for (pokemon in pokemonData.pokemon) {
+					//count++;
+					//if (count < 152) {
+					getPokemonData(pokemon);
+					//}
+				}
+				//getPokemonData('timburr');
 			}
 		}
 	);

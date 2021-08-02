@@ -1,4 +1,4 @@
-My own pokedex mobile application
+pokemon companion mobile application
 
 TODO pokemon data webcrawler
 
