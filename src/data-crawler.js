@@ -98,7 +98,6 @@ function getPokemonData(pokemon) {
 			}
 
 			// TODO get training data
-
 			// TODO get breeding data
 
 			// get stats
