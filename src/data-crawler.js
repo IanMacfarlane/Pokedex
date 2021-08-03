@@ -13,6 +13,7 @@ getGames(url);
 // TODO get move data
 // TODO get ability data
 // TODO get item data and locations
+// TODO generational type changes
 
 // TODO download pokemon images
 
@@ -96,6 +97,9 @@ function getPokemonData(pokemon) {
 				pokedex = pokedex.replace('(', '');
 				pokedex = pokedex.replace(')', '');
 				pokedex = pokedex.toLowerCase();
+				if (pokedex === 'yellow-red-blue') {
+					pokedex = 'red-blue-yellow';
+				}
 				pokemonData.pokemon[pokemon].number[pokedex] = number;
 				localBody = localBody.slice(localBody.search('</small'));
 				// TODO may want to format pokedex name
@@ -260,6 +264,7 @@ function getPokemon(game) {
 				}
 				else {
 					pokemonData.pokemon[pokemon] = {};
+					// TODO pretty print names
 					pokemonData.pokemon[pokemon].name = pokemon;
 				}
 			}
