@@ -92,6 +92,10 @@ function getPokemonData(pokemon) {
 				number = localBody.slice(localBody.search(/\d/), localBody.search(' <small'));
 				localBody = localBody.slice(localBody.search(keyword) + keyword.length);
 				pokedex = localBody.slice(0, localBody.search('</small'));
+				pokedex = pokedex.replaceAll('/', '-');
+				pokedex = pokedex.replace('(', '');
+				pokedex = pokedex.replace(')', '');
+				pokedex = pokedex.toLowerCase();
 				pokemonData.pokemon[pokemon].number[pokedex] = number;
 				localBody = localBody.slice(localBody.search('</small'));
 				// TODO may want to format pokedex name
@@ -205,13 +209,13 @@ function getPokemonData(pokemon) {
 			// TODO get locations use bulbapedia
 
 			console.log(pokemon);
-			console.log(pokemonData.pokemon[pokemon]);
-			if (pokemon = 'calyrex') {
+			//console.log(pokemonData.pokemon[pokemon]);
+			//if (pokemon = 'calyrex') {
 				let string = JSON.stringify(pokemonData, null, 4);
-				fs.writeFile('pokemon.json', string, function(err) {
+				fs.writeFile('pokemonData.json', string, function(err) {
 					if (err) return console.log(err);
 				});
-			}
+			//}
 		}
 	);
 }
@@ -256,6 +260,7 @@ function getPokemon(game) {
 				}
 				else {
 					pokemonData.pokemon[pokemon] = {};
+					pokemonData.pokemon[pokemon].name = pokemon;
 				}
 			}
 
@@ -268,7 +273,7 @@ function getPokemon(game) {
 					getPokemonData(pokemon);
 					//}
 				}
-				//getPokemonData('timburr');
+				//getPokemonData('bulbasaur');
 			}
 		}
 	);
@@ -295,8 +300,6 @@ function getGames(url) {
 				let game = body.slice(0, index);
 				pokemonData.games[game] = {};
 			}
-
-			console.log(pokemonData);
 
 			for (game in pokemonData.games) {
 				getPokemon(game);
