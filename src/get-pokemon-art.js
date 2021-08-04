@@ -66,6 +66,34 @@ for (pokemon in pokemonData.pokemon) {
 		url = url.replace('.png', '');
 		url += '-Amped.png';
 	}
+	else if (pokemon === 'shellos') {
+		url = url.replace('.png', '');
+		url += '-West.png';
+	}
+	else if (pokemon === 'gastrodon') {
+		url = url.replace('.png', '');
+		url += '-West.png';
+	}
+	else if (pokemon === 'burmy') {
+		url = url.replace('.png', '');
+		url += '-Plant.png';
+	}
+	else if (pokemon === 'wormadam') {
+		url = url.replace('.png', '');
+		url += '-Plant.png';
+	}
+	else if (pokemon === 'basculin') {
+		url = url.replace('.png', '');
+		url += '-Red.png';
+	}
+	else if (pokemon === 'meowstic') {
+		url = url.replace('.png', '');
+		url += '-Male.png';
+	}
+	else if (pokemon === 'aegislash') {
+		url = url.replace('.png', '');
+		url += '-Shield.png';
+	}
 
 	//if (pokemon === 'bulbasaur' || pokemon === 'ivysaur') {
 	getImageUrl(pokemon, url);
