@@ -9,8 +9,7 @@ let pokemonData = {};
 let url = 'https://pokemondb.net/pokedex/';
 getGames(url);
 
-// TODO regional pokedexes for sword-shield and x-y
-// TODO regional, and multiple form pokemon
+// TODO regional, and multiple form pokemon, mega evolutions, gigantamax
 // TODO get location data
 // TODO get move data
 // TODO get ability data
@@ -33,7 +32,6 @@ function getPokemonData(pokemon) {
 			pokemonData.pokemon[pokemon]['number'] = {};
 			pokemonData.pokemon[pokemon].number.national = body.slice(0, index);
 
-			// TODO regional pokemon alternatives
 			// get types
 			index = body.search('Type');
 			body = body.slice(index);
@@ -98,17 +96,27 @@ function getPokemonData(pokemon) {
 				if (pokedex === 'yellow-red-blue') {
 					pokedex = 'red-blue-yellow';
 				}
-				else if (pokedex.includes('x-y &amdash; ')) {
-					pokedex = pokedex.replace('x-y &amdash; ', '');
+				else if (pokedex.includes('x-y &mdash; ')) {
+					pokedex = pokedex.replace('x-y &mdash; ', '');
+					pokedex = pokedex.replace(' ', '-');
 				}
 				else if (pokedex === 'let\'s go pikachu-let\'s go eevee') {
 					pokedex = 'lets-go-pikachu-eevee';
 				}
-				else if (pokedex.includes('sun-moon &amdash;')) {
+				else if (pokedex.includes('sun-moon &mdash;')) {
 					pokedex = 'sun-moon';
 				}
-				else if (pokedex.includes('u.sun-u.moon &amdash;')) {
+				else if (pokedex.includes('u.sun-u.moon &mdash;')) {
 					pokedex = 'ultra-sun-ultra-moon';
+				}
+				else if (pokedex === 'the isle of armor') {
+					pokedex = 'isle-of-armor';
+				}
+				else if (pokedex === 'the crown tundra') {
+					pokedex = 'crown-tundra';
+				}
+				else if (pokedex === 'omega ruby-alpha sapphire') {
+					pokedex = 'omega-ruby-alpha-sapphire';
 				}
 				pokemonData.pokemon[pokemon].number[pokedex] = number;
 				localBody = localBody.slice(localBody.search('</small'));
@@ -255,37 +263,102 @@ function getPokemon(game) {
 			index = body.search(keyword);
 			body = body.slice(index);
 
-			if (game) {
-				pokemonData.games[game].pokemon = [];
+			// for sun-moon usun-umoon ignore islands
+			if (game === 'ultra-sun-ultra-moon' || game === 'sun-moon') {
+				body = body.slice(0, body.search('id=\"dex-melemele-island\"'));
+			}
+
+			// for x-y split up regions
+			if (game == 'x-y') {
+
+				let localBody = body.slice(0, body.search('id=\"dex-coastal-kalos\"'));
+				keyword = 'name" href=\"/pokedex/';
+				pokemonData.games[game]['central'] = {};
+				pokemonData.games[game]['central'].pokemon = [];
+				while (localBody.search(keyword) != -1) {
+					index = localBody.search(keyword);
+					localBody = localBody.slice(index + keyword.length);
+					index = localBody.search('\"');
+					pokemonData.games[game]['central'].pokemon.push(localBody.slice(0, index));
+				}
+				localBody = body.slice(body.search('id=\"dex-coastal-kalos\"'), body.search('id=\"dex-mountain-kalos\"'));
+				pokemonData.games[game]['coastal'] = {};
+				pokemonData.games[game]['coastal'].pokemon = [];
+				while (localBody.search(keyword) != -1) {
+					index = localBody.search(keyword);
+					localBody = localBody.slice(index + keyword.length);
+					index = localBody.search('\"');
+					pokemonData.games[game]['coastal'].pokemon.push(localBody.slice(0, index));
+				}
+				localBody = body.slice(body.search('id=\"dex-mountain-kalos\"'));
+				pokemonData.games[game]['mountain'] = {};
+				pokemonData.games[game]['mountain'].pokemon = [];
+				while (localBody.search(keyword) != -1) {
+					index = localBody.search(keyword);
+					localBody = localBody.slice(index + keyword.length);
+					index = localBody.search('\"');
+					pokemonData.games[game]['mountain'].pokemon.push(localBody.slice(0, index));
+				}
+
 			}
 			else {
-				pokemonData.pokemon = {};
-			}
-			// TODO for sun-moon usun-umoon ignore islands
-			keyword = 'name" href=\"/pokedex/';
-			while (body.search(keyword) != -1) {
-				index = body.search(keyword);
-				body = body.slice(index + keyword.length);
-				index = body.search('\"');
-				let pokemon = body.slice(0, index);
+
+
 				if (game) {
-					pokemonData.games[game].pokemon.push(pokemon);
+					// sword-shield, isle of armor, crown tundra
+					if (game === 'sword-shield') {
+						pokemonData.games[game]['galar'] = {};
+						pokemonData.games[game]['galar'].pokemon = [];
+					}
+					else if (game.includes('isle-of-armor')) {
+						pokemonData.games['sword-shield']['isle-of-armor'] = {};
+						pokemonData.games['sword-shield']['isle-of-armor'].pokemon = [];
+					}
+					else if (game.includes('crown-tundra')) {
+						pokemonData.games['sword-shield']['crown-tundra'] = {};
+						pokemonData.games['sword-shield']['crown-tundra'].pokemon = [];
+					}
+					else {
+						pokemonData.games[game].pokemon = [];
+					}
 				}
 				else {
-					pokemonData.pokemon[pokemon] = {};
-					// TODO pretty print names
-					pokemonData.pokemon[pokemon].name = pokemon;
+					pokemonData.pokemon = {};
+				}
+
+				keyword = 'name" href=\"/pokedex/';
+				while (body.search(keyword) != -1) {
+					index = body.search(keyword);
+					body = body.slice(index + keyword.length);
+					index = body.search('\"');
+					let pokemon = body.slice(0, index);
+					if (game) {
+						// sword-shield, isle of armor, crown tundra
+						if (game === 'sword-shield') {
+							pokemonData.games[game]['galar'].pokemon.push(pokemon);
+						}
+						else if (game.includes('isle-of-armor')) {
+							pokemonData.games['sword-shield']['isle-of-armor'].pokemon.push(pokemon);
+						}
+						else if (game.includes('crown-tundra')) {
+							pokemonData.games['sword-shield']['crown-tundra'].pokemon.push(pokemon);
+						}
+						else {
+							pokemonData.games[game].pokemon.push(pokemon);
+						}
+					}
+					else {
+						pokemonData.pokemon[pokemon] = {};
+						// TODO pretty print names
+						pokemonData.pokemon[pokemon].name = pokemon;
+					}
 				}
 			}
 
-			let count = 0;
 			if (!game) {
 				// get individual pokemon data
 				for (pokemon in pokemonData.pokemon) {
-					//count++;
-					//if (count < 152) {
 					getPokemonData(pokemon);
-					//}
 				}
 				//getPokemonData('bulbasaur');
 			}
@@ -313,11 +386,15 @@ function getGames(url) {
 				index = body.search('\"');
 				let game = body.slice(0, index);
 				pokemonData.games[game] = {};
+				// TODO name for pretty printing
 			}
 
 			for (game in pokemonData.games) {
 				getPokemon(game);
 			}
+			// get pokemon for isle of armor and crown tundra
+			getPokemon('sword-shield/isle-of-armor');
+			getPokemon('sword-shield/crown-tundra');
 
 			// get national dex
 			getPokemon();

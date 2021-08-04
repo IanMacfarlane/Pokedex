@@ -16,8 +16,8 @@ for (pokemon in pokemonData.pokemon) {
 	else if (pokemon === 'nidoran-f') {
 		url = url.replace('-f', '');
 	}
-	else if (pokemon === 'farfetchd') {
-		url = url.replace('Farfetchd', 'Farfetch\'d');
+	else if (pokemon.includes('fetchd')) {
+		url = url.replace('fetchd', 'fetch\'d');
 	}
 	else if (pokemon === 'type-null') {
 		url = url.replace('-n', '_N');
@@ -34,6 +34,33 @@ for (pokemon in pokemonData.pokemon) {
 		else if (pokemon.search('mime') != -1 || pokemon.search('tapu-') != -1) {
 			url = url.replace('-', '_');
 		}
+	}
+	else if (pokemon === 'giratina') {
+		url = url.replace('.png', '');
+		url += '-Altered.png';
+	}
+	else if (pokemon === 'shaymin') {
+		url = url.replace('.png', '');
+		url += '-Land.png';
+	}
+	else if (pokemon === 'deerling' || pokemon === 'sawsbuck') {
+		url = url.replace('.png', '');
+		url += '-Spring.png';
+	}
+	else if (pokemon === 'flabebe') {
+		url = url.replace('Flabebe', 'Flabébé');
+	}
+	else if (pokemon === 'oricorio') {
+		url = url.replace('.png', '');
+		url += '-Baile.png';
+	}
+	else if (pokemon === 'wishiwashi') {
+		url = url.replace('.png', '');
+		url += '-Solo.png';
+	}
+	else if (pokemon === 'urshifu') {
+		url = url.replace('.png', '');
+		url += '-Single_Strike.png';
 	}
 
 	//if (pokemon === 'bulbasaur' || pokemon === 'ivysaur') {
@@ -69,7 +96,7 @@ function getImageUrl(pokemon, url) {
 function downloadImage(pokemon, url) {
 	request.head(url, (err, res, body) => {
 		console.log(pokemon + ': ' + url);
-		request(url).pipe(fs.createWriteStream('./art/' + pokemon + '.png')).on('close', () => {
+		request(url).pipe(fs.createWriteStream('./pokemonArtworks/' + pokemon + '.png')).on('close', () => {
 			console.log(pokemon + ': download complete');
 		});
 	});
