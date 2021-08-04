@@ -62,6 +62,10 @@ for (pokemon in pokemonData.pokemon) {
 		url = url.replace('.png', '');
 		url += '-Single_Strike.png';
 	}
+	else if (pokemon === 'toxtricity') {
+		url = url.replace('.png', '');
+		url += '-Amped.png';
+	}
 
 	//if (pokemon === 'bulbasaur' || pokemon === 'ivysaur') {
 	getImageUrl(pokemon, url);
@@ -96,7 +100,7 @@ function getImageUrl(pokemon, url) {
 function downloadImage(pokemon, url) {
 	request.head(url, (err, res, body) => {
 		console.log(pokemon + ': ' + url);
-		request(url).pipe(fs.createWriteStream('./pokemonArtworks/' + pokemon + '.png')).on('close', () => {
+		request(url).pipe(fs.createWriteStream('./images/' + pokemon + '.png')).on('close', () => {
 			console.log(pokemon + ': download complete');
 		});
 	});
