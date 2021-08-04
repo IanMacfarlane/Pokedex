@@ -8,15 +8,13 @@ let fs = require('fs');
 let pokemonData = {};
 let url = 'https://pokemondb.net/pokedex/';
 getGames(url);
-// TODO regional pokedex
+
+// TODO regional pokedexes for sword-shield and x-y
+// TODO regional, and multiple form pokemon
 // TODO get location data
 // TODO get move data
 // TODO get ability data
-// TODO get item data and locations
-// TODO generational type changes
-
-// TODO download pokemon images
-
+// TODO get item data
 
 function getPokemonData(pokemon) {
 	request(
@@ -100,9 +98,20 @@ function getPokemonData(pokemon) {
 				if (pokedex === 'yellow-red-blue') {
 					pokedex = 'red-blue-yellow';
 				}
+				else if (pokedex.includes('x-y &amdash; ')) {
+					pokedex = pokedex.replace('x-y &amdash; ', '');
+				}
+				else if (pokedex === 'let\'s go pikachu-let\'s go eevee') {
+					pokedex = 'lets-go-pikachu-eevee';
+				}
+				else if (pokedex.includes('sun-moon &amdash;')) {
+					pokedex = 'sun-moon';
+				}
+				else if (pokedex.includes('u.sun-u.moon &amdash;')) {
+					pokedex = 'ultra-sun-ultra-moon';
+				}
 				pokemonData.pokemon[pokemon].number[pokedex] = number;
 				localBody = localBody.slice(localBody.search('</small'));
-				// TODO may want to format pokedex name
 			}
 
 			// TODO get training data
@@ -252,7 +261,7 @@ function getPokemon(game) {
 			else {
 				pokemonData.pokemon = {};
 			}
-
+			// TODO for sun-moon usun-umoon ignore islands
 			keyword = 'name" href=\"/pokedex/';
 			while (body.search(keyword) != -1) {
 				index = body.search(keyword);
