@@ -86,7 +86,7 @@ for (pokemon in pokemonData.pokemon) {
 		url = url.replace('.png', '');
 		url += '-Red.png';
 	}
-	else if (pokemon === 'meowstic') {
+	else if (pokemon === 'meowstic' || pokemon === 'frillish' || pokemon === 'pyroar') {
 		url = url.replace('.png', '');
 		url += '-Male.png';
 	}
@@ -96,7 +96,7 @@ for (pokemon in pokemonData.pokemon) {
 	}
 
 	//if (pokemon === 'bulbasaur' || pokemon === 'ivysaur') {
-	getImageUrl(pokemon, url);
+	//getImageUrl(pokemon, url);
 	//}
 }
 
@@ -119,16 +119,18 @@ function getImageUrl(pokemon, url) {
 				console.log(pokemonData.pokemon[pokemon].number.national + pokemon + ' url error');
 			}
 			else {
-				downloadImage(pokemon, nextUrl);
+				//downloadImage(pokemon, nextUrl);
 			}
 		}
 	);
 }
 
+downloadImage('toxtricity', 'https://bulbagarden.net/wiki/File:849Toxtricity-Amped.png');
+
 function downloadImage(pokemon, url) {
 	request.head(url, (err, res, body) => {
 		console.log(pokemon + ': ' + url);
-		request(url).pipe(fs.createWriteStream('./images/' + pokemon + '.png')).on('close', () => {
+		request(url).pipe(fs.createWriteStream('./' + pokemon + '.png')).on('close', () => {
 			console.log(pokemon + ': download complete');
 		});
 	});
